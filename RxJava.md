@@ -1,7 +1,7 @@
 ### RxJava
 1. RxJava 的观察者模式简单介绍(#1)
-*  map和flatmap的区别
-*  lift和compose的区别
+*  变换操作map和flatmap的区别
+*  变换的原理lift和compose的区别
 *  线程控制Scheduler
 *  什么是subject
 *  Rxjava extension library简单介绍
@@ -13,7 +13,146 @@ RxJava 有四个基本概念：Observable (可观察者，即被观察者)、 Ob
 * onError(): 事件队列异常。在事件处理过程中出异常时，onError() 会被触发，同时队列自动终止，不允许再有事件发出。
 * 在一个正确运行的事件序列中, onCompleted() 和 onError() 有且只有一个，并且是事件序列中的最后一个。需要注意的是，onCompleted() 和 onError() 二者也是互斥的，即在队列中调用了其中一个，就不应该再调用另一个。
 
+### 变换操作map和flatmap的区别
+RxJava一个非常强大的功能就是对事件序列的变换操作；所谓变换，就是将事件序列中的对象或整个序列进行加工处理，转换成不同的事件或事件序列
+RxJava包含许多操作符，例如Transforming 变换操作、Filtering 过滤操作、Combining 结合操作 等等，map和flatmap就属于变换操作
 
+下面以map和flatmap为例，介绍一下变换操作的具体操作
+map：对序列的每一项都应用一个函数来变换Observable发射的数据序列
+flatmap：将Observable发射的数据集合变换为Observables集合，然后将这些Observable发射的数据平坦化的放进一个单独的Observable
+
+举个例子：一个班有50个学生，我只想获取这个班50个学生的姓名，可以用map操作符来进行如下转换
+```
+Student[] students = ...;
+Observable.from(students)
+    .map(new Func1<Student, String>() {
+        @Override
+        public String call(Student student) {
+            return student.getName();
+        }
+    })
+    .buffer(50)
+    .subscribe(new Observer<List<String>>() {
+    @Override
+    public void onNext(List<String> studentNames) {
+        Log.i(TAG, studentNames);
+    }
+
+    @Override
+    public void onCompleted() {}
+
+    @Override
+    public void onError(Throwable e) {}
+});
+```
+但是如果我还想查询50个学生的成绩呢？这个时候就要用flatmap了
+```
+Student[] students = ...;
+Observable.from(students)
+    .flatMap(new Func1<Student, Observable<Score>>() {
+        @Override
+        public Observable<Score> call(Student student) {
+            return Observable.from(student.getScore());
+        }
+    })
+    .buffer(50)
+    .subscribe(new Observer<List<Score>>() {
+    @Override
+    public void onNext(List<Score> scores) {
+        Log.i(TAG, scores);
+    }
+
+    @Override
+    public void onCompleted() {}
+
+    @Override
+    public void onError(Throwable e) {}
+});
+```
+从上面的代码可以看出， flatMap() 和 map() 有一个相同点：它也是把传入的参数转化之后返回另一个对象。但需要注意，和 map() 不同的是， flatMap() 中返回的是个 Observable 对象，并且这个 Observable 对象并不是被直接发送到了 Subscriber 的回调方法中
+flatMap() 的原理是这样的：
+1. 使用传入的事件对象创建一个 Observable 对象
+2. 并不发送这个 Observable, 而是将它激活，于是它开始发送事件
+3. 每一个创建出来的 Observable 发送的事件，都被汇入同一个 Observable ，而这个 Observable 负责将这些事件统一交给 Subscriber 的回调方法
+这三个步骤，把事件拆成了两级，通过一组新创建的 Observable 将初始的对象『铺平』之后通过统一路径分发了下去。而这个『铺平』就是 flatMap() 所谓的 flat。
+![](images/flatmap.jpg)
+
+### 变换的原理lift和compose的区别
+
+##### 变换的原理：lift()
+lift变换实质上都是针对事件序列的处理和再发送。而在 RxJava 的内部，它们是基于同一个基础的变换方法： lift(Operator)。首先看一下 lift() 的内部实现（仅核心代码）：
+```
+// 注意：这不是 lift() 的源码，而是将源码中与性能、兼容性、扩展性有关的代码剔除后的核心代码。
+// 如果需要看源码，可以去 RxJava 的 GitHub 仓库下载。
+public <R> Observable<R> lift(Operator<? extends R, ? super T> operator) {
+    return Observable.create(new OnSubscribe<R>() {
+        @Override
+        public void call(Subscriber subscriber) {
+            Subscriber newSubscriber = operator.call(subscriber);
+            newSubscriber.onStart();
+            onSubscribe.call(newSubscriber);
+        }
+    });
+}
+```
+![](images/lift1.jpg)
+![](images/lift2.jpg)
+
+##### 变换的原理：compose()
+compose: 对 Observable 整体的变换
+假设在程序中有多个 Observable ，并且他们都需要应用一组相同的 lift() 变换
+
+```
+//你可以这么写
+observable1
+    .lift1()
+    .lift2()
+    .lift3()
+    .lift4()
+    .subscribe(subscriber1);
+observable2
+    .lift1()
+    .lift2()
+    .lift3()
+    .lift4()
+    .subscribe(subscriber2);
+
+//也可以这么写
+private Observable liftAll(Observable observable) {
+	return observable
+	    .lift1()
+	    .lift2()
+	    .lift3()
+	    .lift4();
+}
+liftAll(observable1).subscribe(subscriber1);
+liftAll(observable2).subscribe(subscriber2);
+
+public class LiftAllTransformer implements Observable.Transformer<Integer, String> {
+    @Override
+    public Observable<String> call(Observable<Integer> observable) {
+        return observable
+            .lift1()
+            .lift2()
+            .lift3()
+            .lift4();
+    }
+}
+Transformer liftAll = new LiftAllTransformer();
+observable1.compose(liftAll).subscribe(subscriber1);
+observable2.compose(liftAll).subscribe(subscriber2);
+```
+
+### 线程控制Scheduler
+RxJava线程控制是用subscribeOn() 和 observeOn()方法实现的
+subscribeOn() 指定的是 Observable 发送事件的线程
+observeOn() 指定的是 Subscriber 接收Observable发送的数据的线程
+subscribeOn() 原理图：
+![](images/subscribeon1.jpg)
+observeOn() 原理图：
+![](images/observeOn1.jpg)
+subscribeOn() 和 observeOn() 混合使用结构图
+![](images/subscribeOn_observeOn.jpg)
 ### 什么是subject
 先看看Subject的定义
 ```
