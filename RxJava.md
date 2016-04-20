@@ -47,7 +47,7 @@ subject.onNext("Hello3");
 subject.onCompleted();
 ```
 
-Subject的种类
+####Subject的种类
 
 #### 1. PublishSubject
 
