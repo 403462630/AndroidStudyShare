@@ -150,12 +150,15 @@ subscribeOn() 指定的是 Observable 发送事件的线程
 observeOn() 指定的是 Subscriber 接收Observable发送的数据的线程
 
 subscribeOn() 原理图：
+
 ![](images/subscribeon1.jpg)
 
 observeOn() 原理图：
+
 ![](images/observeOn1.jpg)
 
 subscribeOn() 和 observeOn() 混合使用结构图
+
 ![](images/subscribeOn_observeOn.jpg)
 
 ### 什么是subject
