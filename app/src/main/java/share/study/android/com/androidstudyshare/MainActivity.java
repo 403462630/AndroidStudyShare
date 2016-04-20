@@ -5,12 +5,31 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import rx.Observable;
+import rx.Subscriber;
+import rx.subjects.PublishSubject;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(Subscriber<? super String> subscriber) {
+                subscriber.onNext("Hello1");
+                subscriber.onNext("Hello2");
+                subscriber.onCompleted();
+            }
+        }).subscribe();
+
+        PublishSubject subject = PublishSubject.create();
+        subject.onNext("Hello1");
+        subject.onNext("Hello2");
+        subject.subscribe();
+        subject.onNext("Hello3");
+        subject.onCompleted();
     }
 
     @Override
