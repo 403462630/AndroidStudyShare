@@ -128,6 +128,7 @@ private Observable liftAll(Observable observable) {
 liftAll(observable1).subscribe(subscriber1);
 liftAll(observable2).subscribe(subscriber2);
 
+//compose的写法
 public class LiftAllTransformer implements Observable.Transformer<Integer, String> {
     @Override
     public Observable<String> call(Observable<Integer> observable) {
@@ -147,12 +148,16 @@ observable2.compose(liftAll).subscribe(subscriber2);
 RxJava线程控制是用subscribeOn() 和 observeOn()方法实现的
 subscribeOn() 指定的是 Observable 发送事件的线程
 observeOn() 指定的是 Subscriber 接收Observable发送的数据的线程
+
 subscribeOn() 原理图：
 ![](images/subscribeon1.jpg)
+
 observeOn() 原理图：
 ![](images/observeOn1.jpg)
+
 subscribeOn() 和 observeOn() 混合使用结构图
 ![](images/subscribeOn_observeOn.jpg)
+
 ### 什么是subject
 先看看Subject的定义
 ```
