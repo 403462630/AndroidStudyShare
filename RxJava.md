@@ -78,10 +78,12 @@ flatMap() 的原理是这样的：
 ![](images/flatmap.jpg)
 
 ### 变换的原理lift和compose的区别
-
-##### 变换的原理：lift()
-lift变换实质上都是针对事件序列的处理和再发送。而在 RxJava 的内部，它们是基于同一个基础的变换方法： lift(Operator)。首先看一下 lift() 的内部实现（仅核心代码）：
 ```
+//Observable构造方法
+protected Observable(OnSubscribe<T> f) {
+    this.onSubscribe = f;
+}
+
 // 注意：这不是 lift() 的源码，而是将源码中与性能、兼容性、扩展性有关的代码剔除后的核心代码。
 // 如果需要看源码，可以去 RxJava 的 GitHub 仓库下载。
 public <R> Observable<R> lift(Operator<? extends R, ? super T> operator) {
@@ -94,7 +96,14 @@ public <R> Observable<R> lift(Operator<? extends R, ? super T> operator) {
         }
     });
 }
+
+//compose源码
+public <R> Observable<R> compose(Transformer<? super T, ? extends R> transformer) {
+    return ((Transformer<T, R>) transformer).call(this);
+}
 ```
+##### 变换的原理：lift()
+lift变换实质上都是针对事件序列的处理和再发送。而在 RxJava 的内部，它们是基于同一个基础的变换方法： lift(Operator)。首先看一下 lift() 的内部实现（仅核心代码）：
 ![](images/lift1.jpg)
 ![](images/lift2.jpg)
 
