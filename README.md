@@ -5,3 +5,4 @@
  * [Gradle User Guide 中文版](https://dongchuan.gitbooks.io/gradle-user-guide-/content/)
  * [Retrofit2 Getting Started Blog](https://futurestud.io/blog/retrofit-getting-started-and-android-client)
  * [Android HTTPS SSL双向验证](http://frank-zhu.github.io/android/2014/12/26/android-https-ssl/)
+ * [使用 Jenkins 搭建 iOS / Android 持续集成打包平台](http://debugtalk.com/post/iOS-Android-Packing-with-Jenkins)
