@@ -6,6 +6,7 @@
  * [Retrofit2 Getting Started Blog](https://futurestud.io/blog/retrofit-getting-started-and-android-client)
  * [Android HTTPS SSL双向验证](http://frank-zhu.github.io/android/2014/12/26/android-https-ssl/)
  * [使用 Jenkins 搭建 iOS / Android 持续集成打包平台](http://debugtalk.com/post/iOS-Android-Packing-with-Jenkins)
+ * [Jenkins Gitlab持续集成打包平台搭建](http://skyseraph.com/2016/07/18/Tools/Jenkins%20Gitlab%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E6%89%93%E5%8C%85%E5%B9%B3%E5%8F%B0%E6%90%AD%E5%BB%BA/?hmsr=toutiao.io&utm_medium=toutiao.io&utm_source=toutiao.io)
  * [Protobuf简单使用](http://www.iloveandroid.net/2015/10/08/studyPtorobuf/)
  * [缓存更新的套路](http://coolshell.cn/articles/17416.html?hmsr=toutiao.io&utm_medium=toutiao.io&utm_source=toutiao.io)
  * [Android Patch 方案与持续交付](http://wereadteam.github.io/2016/07/26/AndroidPatch/?hmsr=toutiao.io&utm_medium=toutiao.io&utm_source=toutiao.io)
