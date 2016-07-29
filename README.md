@@ -7,3 +7,4 @@
  * [Android HTTPS SSL双向验证](http://frank-zhu.github.io/android/2014/12/26/android-https-ssl/)
  * [使用 Jenkins 搭建 iOS / Android 持续集成打包平台](http://debugtalk.com/post/iOS-Android-Packing-with-Jenkins)
  * [Protobuf简单使用](http://www.iloveandroid.net/2015/10/08/studyPtorobuf/)
+ * [缓存更新的套路](http://coolshell.cn/articles/17416.html?hmsr=toutiao.io&utm_medium=toutiao.io&utm_source=toutiao.io)
